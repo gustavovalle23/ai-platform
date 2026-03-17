@@ -1,18 +1,42 @@
 "use client"
 
-import useSWR from "swr"
-import axios from "axios"
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 
-const fetcher = (url: string) => axios.get(url).then(res => res.data)
+const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export default function Dashboard() {
-  const { data, mutate } = useSWR(`${process.env.NEXT_PUBLIC_API_URL}/booking/booking_1`, fetcher)
+  const [data, setData] = useState<unknown>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [ticketId, setTicketId] = useState("ticket_1")
 
+  const fetchBooking = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch(`${API_URL}/booking/booking_1`)
+      if (!res.ok) throw new Error("Failed to fetch booking")
+      const json = await res.json()
+      setData(json)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Unknown error")
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchBooking()
+  }, [fetchBooking])
+
   const refund = async () => {
-    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/refund/${ticketId}`)
-    mutate()
+    try {
+      const res = await fetch(`${API_URL}/refund/${ticketId}`, { method: "POST" })
+      if (!res.ok) throw new Error("Refund failed")
+      await fetchBooking()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Refund failed")
+    }
   }
 
   return (
@@ -21,7 +45,9 @@ export default function Dashboard() {
 
       <div style={{ marginBottom: 20 }}>
         <h3>Booking</h3>
-        <pre>{JSON.stringify(data, null, 2)}</pre>
+        {loading && <p>Loading...</p>}
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        {!loading && !error && <pre>{JSON.stringify(data, null, 2)}</pre>}
       </div>
 
       <div>
