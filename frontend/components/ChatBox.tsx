@@ -1,11 +1,21 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
-import { sendMessage } from "@/lib/api"
+import { useState, useRef, useEffect, useCallback } from "react"
+import { sendMessage, ChatApiError } from "@/lib/api"
 
 type Message = { role: "user" | "assistant"; content: string }
 
 const USER_ID = "user_1"
+
+function toUserMessage(err: unknown): string {
+  if (err instanceof ChatApiError) {
+    if (err.status === 422) return "Please enter a message and try again."
+    if (err.status === 0) return "Couldn't reach the server. Check your connection and try again."
+    if (err.status >= 500) return "Something went wrong on our side. Please try again in a moment."
+    return err.message || "Something went wrong. Please try again."
+  }
+  return "Something went wrong. Please try again."
+}
 
 function TypingIndicator() {
   return (
@@ -56,6 +66,10 @@ export default function ChatBox() {
     scrollToBottom()
   }, [messages, isLoading])
 
+  const focusInput = useCallback(() => {
+    requestAnimationFrame(() => inputRef.current?.focus())
+  }, [])
+
   const handleSend = async () => {
     const text = input.trim()
     if (!text || isLoading) return
@@ -68,13 +82,15 @@ export default function ChatBox() {
 
     try {
       const response = await sendMessage(text, USER_ID)
-      setMessages((prev) => [...prev, { role: "assistant", content: response }])
+      const reply = typeof response === "string" && response.length > 0 ? response : "I didn't get a response. You can try again."
+      setMessages((prev) => [...prev, { role: "assistant", content: reply }])
     } catch (e) {
-      const errMsg = e instanceof Error ? e.message : "Something went wrong"
-      setError(errMsg)
-      setMessages((prev) => [...prev, { role: "assistant", content: `Error: ${errMsg}` }])
+      const userFacing = toUserMessage(e)
+      setError(userFacing)
+      setMessages((prev) => [...prev, { role: "assistant", content: userFacing }])
     } finally {
       setIsLoading(false)
+      focusInput()
     }
   }
 
@@ -135,7 +151,10 @@ export default function ChatBox() {
             <textarea
               ref={inputRef}
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => {
+                setInput(e.target.value)
+                if (error) setError(null)
+              }}
               onKeyDown={handleKeyDown}
               placeholder="Type your message..."
               rows={1}
