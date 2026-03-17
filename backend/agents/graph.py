@@ -1,5 +1,4 @@
 from langgraph.graph import StateGraph
-from langchain.chat_models import ChatOpenAI
 from tools.booking import get_booking_tool
 from tools.refund import refund_tool
 from tools.flight import check_flight_status_tool
@@ -7,7 +6,6 @@ from tools.flight import check_flight_status_tool
 class State(dict):
     pass
 
-llm = ChatOpenAI(model="gpt-4o-mini")
 
 async def classify(state):
     message = state["message"]
