@@ -20,7 +20,7 @@ fi
 
 echo "Stopping backend (Docker)..."
 cd backend
-docker compose down
+docker-compose down
 cd "$ROOT"
 
 echo "Done."

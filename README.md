@@ -104,8 +104,8 @@ In a **second terminal**:
 
 ```bash
 cd backend
-python3 -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
+python3 -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env
 # Edit .env: set OPENAI_API_KEY and keep DATABASE_URL / REDIS_URL for localhost
@@ -165,7 +165,7 @@ cd frontend && echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local && 
 ```bash
 cd backend && docker-compose -f docker-compose.databases.yml up -d
 # Second terminal:
-cd backend && python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt && cp .env.example .env
+cd backend && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt && cp .env.example .env
 # Edit .env, then:
 export $(grep -v '^#' .env | xargs) && uvicorn main:app --reload --host 0.0.0.0 --port 8000
 # Third terminal:
