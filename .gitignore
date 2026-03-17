@@ -1,0 +1,3 @@
+# start.sh artifacts
+.frontend.pid
+.frontend.log

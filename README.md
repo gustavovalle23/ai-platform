@@ -23,7 +23,7 @@ The full stack is configured via `backend/docker-compose.yml`. From the host you
 
 | Variable           | Required | Description |
 |--------------------|----------|-------------|
-| `OPENAI_API_KEY`   | Yes      | Your OpenAI API key (set when running `docker compose up`) |
+| `OPENAI_API_KEY`   | Yes      | Your OpenAI API key (set when running `docker-compose up`) |
 
 Inside the stack: `DATABASE_URL` and `REDIS_URL` point at the `postgres` and `redis` services.
 
@@ -58,7 +58,7 @@ From the **project root**:
 ```bash
 cd backend
 export OPENAI_API_KEY=sk-your-openai-key-here
-docker compose up --build
+docker-compose up --build
 ```
 
 - API: **http://localhost:8000**
@@ -93,7 +93,7 @@ From the **project root**:
 
 ```bash
 cd backend
-docker compose -f docker-compose.databases.yml up -d
+docker-compose -f docker-compose.databases.yml up -d
 ```
 
 Postgres: `localhost:5432` · Redis: `localhost:6379`
@@ -140,7 +140,7 @@ npm run dev
 
 ```bash
 cd backend
-docker compose -f docker-compose.databases.yml down
+docker-compose -f docker-compose.databases.yml down
 ```
 
 ---
@@ -155,7 +155,7 @@ docker compose -f docker-compose.databases.yml down
 **Option A – minimal (all in Docker):**
 
 ```bash
-cd backend && OPENAI_API_KEY=sk-... docker compose up --build
+cd backend && OPENAI_API_KEY=sk-... docker-compose up --build
 # Second terminal:
 cd frontend && echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local && npm install && npm run dev
 ```
@@ -163,7 +163,7 @@ cd frontend && echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local && 
 **Option B – minimal (DBs in Docker, backend in venv):**
 
 ```bash
-cd backend && docker compose -f docker-compose.databases.yml up -d
+cd backend && docker-compose -f docker-compose.databases.yml up -d
 # Second terminal:
 cd backend && python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt && cp .env.example .env
 # Edit .env, then:
