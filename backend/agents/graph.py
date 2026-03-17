@@ -18,7 +18,11 @@ async def fetch_booking(state):
     return {"booking": booking}
 
 async def check_status(state):
-    flight = await check_flight_status_tool(state["booking"]["flight_id"])
+    booking = state.get("booking") or {}
+    flight_id = booking.get("flight_id") if booking else None
+    if not flight_id:
+        return {"flight": {"flight_id": None, "status": "unknown"}}
+    flight = await check_flight_status_tool(flight_id)
     return {"flight": flight}
 
 async def decide(state):
